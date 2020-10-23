@@ -796,14 +796,14 @@ fazer o que quiser para verificar dados válidos dentro do bloco. Se sua
 validação falhar, você deverá adicionar uma mensagem de erro ao modelo,
 tornando-o inválido.
 
-Common Validation Options
+Opções Comuns de Validação
 -------------------------
 
-These are common validation options:
+Estas são as opções comuns de validação
 
 ### `:allow_nil`
 
-The `:allow_nil` option skips the validation when the value being validated is
+A opção `:allow_nil` pula a validação quando o valor que está sendo validado é
 `nil`.
 
 ```ruby
@@ -813,14 +813,14 @@ class Coffee < ApplicationRecord
 end
 ```
 
-For full options to the message argument please see the
-[message documentation](#message).
+Para todas as opções do argumento message, por favor veja a 
+[documentação do message](#message).
 
 ### `:allow_blank`
 
-The `:allow_blank` option is similar to the `:allow_nil` option. This option
-will let validation pass if the attribute's value is `blank?`, like `nil` or an
-empty string for example.
+A opção `:allow_blank` é similar à opção `:allow_nil`. Esta opção deixará a
+validação passar se o valor do atributo for `blank?`, como `nil` ou uma string
+vazia, por exemplo.
 
 ```ruby
 class Topic < ApplicationRecord
@@ -833,33 +833,35 @@ Topic.create(title: nil).valid? # => true
 
 ### `:message`
 
-As you've already seen, the `:message` option lets you specify the message that
-will be added to the `errors` collection when validation fails. When this
-option is not used, Active Record will use the respective default error message
-for each validation helper. The `:message` option accepts a `String` or `Proc`.
+Como você já viu, a opção `:message` te deixa especificar a mensagem que vai ser
+adicionada à coleção `errors` quando a validação falhar. Quando esta opção não é
+usada, O *Active Record* usará a respectiva mensagem padrão para cada *helper* de
+validação. A opção `:message` aceita `String` ou `Proc`.
 
-A `String` `:message` value can optionally contain any/all of `%{value}`,
-`%{attribute}`, and `%{model}` which will be dynamically replaced when
-validation fails. This replacement is done using the I18n gem, and the
-placeholders must match exactly, no spaces are allowed.
+Um valor de `:message` do tipo `String` pode opcionalmente conter algum/todos os
+`%{value}`, `%{attribute}` e `%{model}` os quais podem ser dinamicamente
+substituidos quando a validação falhar. Esta substituição é feita usando a
+*gem* I18n, e os campos a serem substituidos devem casar perfeitamente,
+espaços não são permitidos.
 
-A `Proc` `:message` value is given two arguments: the object being validated, and
-a hash with `:model`, `:attribute`, and `:value` key-value pairs.
+Um valor de `:message` do tipo `Proc` recebe dois argumentos: O objeto que está 
+sendo validado, e uma *hash* com pares chave-valor `:model`, `:attribute` e
+`:value`.
 
 ```ruby
 class Person < ApplicationRecord
-  # Hard-coded message
+  # Mensagem hard-coded
   validates :name, presence: { message: "must be given please" }
 
-  # Message with dynamic attribute value. %{value} will be replaced with
-  # the actual value of the attribute. %{attribute} and %{model} also
-  # available.
+  # Mensagem com valor de atributo dinâmico. %{value} será substituído com
+  # o verdadeiro valor do atributo. %{attribute} e %{model} também
+  # disponíveis.
   validates :age, numericality: { message: "%{value} seems wrong" }
 
   # Proc
   validates :username,
     uniqueness: {
-      # object = person object being validated
+      # object = objeto Person sendo validado
       # data = { model: "Person", attribute: "Username", value: <username> }
       message: ->(object, data) do
         "Hey #{object.name}!, #{data[:value]} is taken already! Try again #{Time.zone.tomorrow}"
@@ -870,29 +872,29 @@ end
 
 ### `:on`
 
-The `:on` option lets you specify when the validation should happen. The
-default behavior for all the built-in validation helpers is to be run on save
-(both when you're creating a new record and when you're updating it). If you
-want to change it, you can use `on: :create` to run the validation only when a
-new record is created or `on: :update` to run the validation only when a record
-is updated.
+A opção `:on` te deixa especificar quando a validação deve ocorrer. O
+comportamento padrão para todos os *helpers* de validação embutidos é de ser
+executado ao salvar (tanto quanto você está criando um novo registro, quanto o
+atualizando). Se você deseja modificar o comportamento, você pode usar
+`on: :create` para executar a validação apenas quando um novo registro é criado
+ou `on: :update` para executar a validação apenas quando um registro é atualizado.
 
 ```ruby
 class Person < ApplicationRecord
-  # it will be possible to update email with a duplicated value
+  # será possivel atualizar o email com um valor duplicado
   validates :email, uniqueness: true, on: :create
 
-  # it will be possible to create the record with a non-numerical age
+  # será possivel criar um registro com uma idade não-numérica.
   validates :age, numericality: true, on: :update
 
-  # the default (validates on both create and update)
+  # comportamento padrão (valida quando cria e atualiza)
   validates :name, presence: true
 end
 ```
 
-You can also use `on:` to define custom contexts. Custom contexts need to be
-triggered explicitly by passing the name of the context to `valid?`,
-`invalid?`, or `save`.
+Você também pode usar o `on:` para definir contextos personalizados.
+Contextos personalizados precisam ser gatilhados explicitamente passando o nome
+do contexto para `valid?`, `invalid?` ou `save`.
 
 ```ruby
 class Person < ApplicationRecord
@@ -907,12 +909,12 @@ person.errors.messages
  # => {:email=>["has already been taken"], :age=>["is not a number"]}
 ```
 
-`person.valid?(:account_setup)` executes both the validations without saving
-the model. `person.save(context: :account_setup)` validates `person` in the
-`account_setup` context before saving.
+`person.valid?(:account_setup)` executa ambas as validações sem salvar o modelo.
+`person.save(context: :account_setup)` valida `person` no contexto `account_setup`
+antes de salvar.
 
-When triggered by an explicit context, validations are run for that context,
-as well as any validations _without_ a context.
+Quando gatilhado por um contexto explicito, validações são executadas para aquele
+determinado contexto, bem como quaisquer validações _sem_ um contexto.
 
 ```ruby
 class Person < ApplicationRecord
